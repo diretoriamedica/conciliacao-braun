@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conciliação Financeira | Rede Casa Hospitais x B. Braun</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1B2B5B;
+    --primary-light: #2a3f7a;
+    --primary-dark: #111d40;
+    --primary-10: rgba(27,43,91,0.10);
+    --primary-05: rgba(27,43,91,0.05);
+    --accent: #F47920;
+    --accent-light: #f79a50;
+    --accent-dark: #d46610;
+    --accent-10: rgba(244,121,32,0.10);
+    --bg: #f5f6f9;
+    --card: #ffffff;
+    --text: #1e2a3a;
+    --text-secondary: #5a6b80;
+    --green: #1a8a52;
+    --green-bg: #e6f5ed;
+    --red: #c4291c;
+    --red-bg: #fdecea;
+    --yellow: #d68a00;
+    --yellow-bg: #fef6e6;
+    --border: #dfe3ea;
+    --shadow-sm: 0 1px 3px rgba(27,43,91,0.06);
+    --shadow-md: 0 4px 16px rgba(27,43,91,0.08);
+    --shadow-lg: 0 8px 32px rgba(27,43,91,0.12);
+    --radius: 12px;
+    --radius-lg: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Praktika Rounded', 'Roboto', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* === SVG ICONS === */
+  .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .icon svg { width: 22px; height: 22px; }
+  .icon.sm { width: 32px; height: 32px; border-radius: 8px; }
+  .icon.sm svg { width: 16px; height: 16px; }
+  .icon.blue { background: var(--primary-10); }
+  .icon.blue svg { stroke: var(--primary); fill: none; }
+  .icon.orange { background: var(--accent-10); }
+  .icon.orange svg { stroke: var(--accent); fill: none; }
+  .icon.green { background: var(--green-bg); }
+  .icon.green svg { stroke: var(--green); fill: none; }
+  .icon.red { background: var(--red-bg); }
+  .icon.red svg { stroke: var(--red); fill: none; }
+
+  /* === NAVIGATION === */
+  .slide-nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 1000;
+    background: var(--primary);
+    padding: 10px 20px;
+    border-radius: 40px;
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.08);
+  }
+
+  .slide-nav button {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Roboto', sans-serif;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide-nav button:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    transform: scale(1.08);
+  }
+
+  .slide-nav button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .slide-nav .nav-arrow {
+    border: none;
+    background: rgba(255,255,255,0.1);
+    width: 36px; height: 36px;
+  }
+  .slide-nav .nav-arrow:hover { background: var(--accent); }
+  .slide-nav .nav-arrow svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
+  .slide-nav .nav-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.15); margin: 0 4px; }
+
+  /* === SLIDES === */
+  .slide {
+    display: none;
+    min-height: 100vh;
+    padding: 40px 56px 120px;
+    animation: slideIn 0.4s ease;
+  }
+  .slide.active { display: block; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === COVER === */
+  .slide-cover {
+    display: none;
+    min-height: 100vh;
+    background: var(--primary);
+    color: white;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide-cover.active { display: flex; }
+
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -20%;
+    width: 70%; height: 180%;
+    background: radial-gradient(ellipse, rgba(244,121,32,0.08) 0%, transparent 65%);
+  }
+  .slide-cover::after {
+    content: '';
+    position: absolute;
+    bottom: -30%; left: -15%;
+    width: 50%; height: 100%;
+    background: radial-gradient(ellipse, rgba(244,121,32,0.05) 0%, transparent 60%);
+  }
+
+  .cover-logo-box {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px 40px;
+    margin-bottom: 40px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .cover-logo-box img { height: 70px; display: block; }
+
+  .cover-title {
+    font-family: 'Praktika Rounded', 'Roboto', sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    letter-spacing: -1.5px;
+    position: relative;
+  }
+  .cover-subtitle {
+    font-size: 24px;
+    font-weight: 300;
+    opacity: 0.85;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 48px;
+    padding: 28px 56px;
+    background: rgba(255,255,255,0.06);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .cover-meta-item { text-align: center; }
+  .cover-meta-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    opacity: 0.5;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .cover-meta-value { font-size: 15px; font-weight: 600; }
+
+  .cover-badge {
+    margin-top: 32px;
+    padding: 12px 32px;
+    background: var(--accent);
+    border-radius: 32px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(244,121,32,0.4);
+  }
+
+  /* === SLIDE HEADER === */
+  .slide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--primary);
+  }
+
+  .slide-header h1 {
+    font-family: 'Praktika Rounded', 'Roboto', sans-serif;
+    font-size: 26px;
+    color: var(--primary);
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    letter-spacing: -0.5px;
+  }
+
+  .slide-num {
+    background: var(--accent);
+    color: white;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .header-logo { height: 32px; opacity: 0.7; }
+
+  /* === CARDS === */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: box-shadow 0.25s;
+  }
+  .card:hover { box-shadow: var(--shadow-md); }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-family: 'Praktika Rounded', 'Roboto', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  /* === TABLES === */
+  table { width: 100%; border-collapse: collapse; border-radius: var(--radius); overflow: hidden; margin: 14px 0; font-size: 13.5px; }
+  thead th {
+    background: var(--primary);
+    color: white;
+    padding: 13px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border); }
+  tbody tr:nth-child(even) { background: #f8f9fb; }
+  tbody tr:hover { background: var(--primary-05); }
+
+  /* === BADGES === */
+  .badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 16px;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+  .badge-blue { background: var(--primary-10); color: var(--primary); }
+
+  /* === METRICS === */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 18px 0; }
+  .metric {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 22px 20px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+  .metric::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .metric.blue::after { background: var(--primary); }
+  .metric.orange::after { background: var(--accent); }
+  .metric.green::after { background: var(--green); }
+  .metric.red::after { background: var(--red); }
+
+  .metric-val {
+    font-family: 'Praktika Rounded', 'Roboto', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .metric.blue .metric-val { color: var(--primary); }
+  .metric.orange .metric-val { color: var(--accent); }
+  .metric.green .metric-val { color: var(--green); }
+  .metric.red .metric-val { color: var(--red); }
+  .metric-lbl { font-size: 12.5px; color: var(--text-secondary); font-weight: 500; line-height: 1.4; }
+
+  /* === TIMELINE === */
+  .timeline { position: relative; padding-left: 36px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 13px; top: 4px; bottom: 4px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary), var(--accent));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -29px; top: 18px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2.5px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .tl-date { font-size: 11.5px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .tl-who { font-size: 13px; color: var(--primary); font-weight: 700; margin: 3px 0; }
+  .tl-txt { font-size: 13.5px; color: var(--text); line-height: 1.55; }
+
+  /* === HIGHLIGHT BOX === */
+  .hbox {
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 18px 22px;
+    margin: 16px 0;
+    border-left: 4px solid;
+  }
+  .hbox.red { background: linear-gradient(135deg, var(--red-bg), #fff5f5); border-color: var(--red); }
+  .hbox.green { background: linear-gradient(135deg, var(--green-bg), #f0fff4); border-color: var(--green); }
+  .hbox.orange { background: linear-gradient(135deg, var(--yellow-bg), #fffbf0); border-color: var(--accent); }
+  .hbox.blue { background: linear-gradient(135deg, var(--primary-05), rgba(27,43,91,0.02)); border-color: var(--primary); }
+  .hbox h3 { font-size: 15px; margin-bottom: 6px; font-weight: 700; }
+  .hbox p { font-size: 13.5px; line-height: 1.6; }
+
+  /* === LAYOUT === */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .bar-wrap { margin: 10px 0; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 5px; color: var(--text-secondary); }
+  .bar-label strong { color: var(--text); }
+  .bar { height: 8px; background: #e8ecf1; border-radius: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 8px; }
+  .bar-fill.green { background: linear-gradient(90deg, #22c55e, var(--green)); }
+  .bar-fill.orange { background: linear-gradient(90deg, var(--accent-light), var(--accent)); }
+
+  /* === ACTION ITEMS === */
+  .act {
+    display: flex;
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .act-num {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .act-num.int { background: var(--primary-10); color: var(--primary); }
+  .act-num.ext { background: var(--accent-10); color: var(--accent); }
+  .act-txt { font-size: 13.5px; line-height: 1.5; }
+  .act-txt strong { color: var(--primary); }
+
+  /* === PRINT === */
+  @media print {
+    .slide-nav { display: none !important; }
+    .slide, .slide-cover { display: block !important; page-break-after: always; min-height: auto; padding: 24px; }
+  }
+
+  @media (max-width: 768px) {
+    .slide { padding: 20px 20px 120px; }
+    .cover-title { font-size: 34px; }
+    .cover-meta { flex-direction: column; gap: 16px; padding: 20px; }
+    .cols { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== SLIDE 0: CAPA ====== -->
+<div class="slide-cover active" id="slide0">
+  <div class="cover-logo-box">
+    <img src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa Hospitais">
+  </div>
+  <h1 class="cover-title">Conciliação Financeira</h1>
+  <p class="cover-subtitle">Rede Casa Hospitais x B. Braun Brasil</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Preparado por</div>
+      <div class="cover-meta-value">Joel Alves &mdash; Assessor da CEO</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Data</div>
+      <div class="cover-meta-value">25 de março de 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Classificação</div>
+      <div class="cover-meta-value">Confidencial</div>
+    </div>
+  </div>
+  <div class="cover-badge">Reunião de Esclarecimento</div>
+</div>
+
+<!-- ====== SLIDE 1: RESUMO EXECUTIVO ====== -->
+<div class="slide" id="slide1">
+  <div class="slide-header">
+    <h1><span class="slide-num">1</span> Resumo Executivo</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="metrics">
+    <div class="metric blue">
+      <div class="metric-val">R$ 17,2 Mi</div>
+      <div class="metric-lbl">Compras informadas pela BBraun (2024-2025)</div>
+    </div>
+    <div class="metric green">
+      <div class="metric-val">R$ 46,9 Mi</div>
+      <div class="metric-lbl">Total pago pela Rede Casa a BBraun (2023-2026)</div>
+    </div>
+    <div class="metric orange">
+      <div class="metric-val">R$ 909 mil</div>
+      <div class="metric-lbl">Títulos em aberto (Nov-Dez 2025)</div>
+    </div>
+    <div class="metric red">
+      <div class="metric-val">R$ 107.117</div>
+      <div class="metric-lbl">Crédito pendente a favor da Rede Casa</div>
+    </div>
+  </div>
+
+  <div class="hbox blue">
+    <h3>Objetivo desta reunião</h3>
+    <p>Apresentar as evidências documentais (planilhas internas + extratos bancários de 364 PDFs) que comprovam os pagamentos realizados pela Rede Casa Hospitais a B. Braun, e resolver os três blocos de divergência identificados na troca de e-mails entre as partes.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="icon blue"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <span class="card-title">Base documental analisada</span>
+    </div>
+    <div class="cols">
+      <div>
+        <div class="bar-wrap">
+          <div class="bar-label"><span>Extratos bancários analisados</span><strong>364 PDFs</strong></div>
+          <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-label"><span>Parcelas da BBraun verificadas</span><strong>6.706 registros</strong></div>
+          <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="bar-wrap">
+          <div class="bar-label"><span>Pagamentos internos verificados</span><strong>9.303 registros</strong></div>
+          <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-label"><span>E-mails analisados (227 pgs)</span><strong>22 mensagens</strong></div>
+          <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 2: OS 3 BLOCOS ====== -->
+<div class="slide" id="slide2">
+  <div class="slide-header">
+    <h1><span class="slide-num">2</span> Os Três Blocos em Disputa</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="icon orange"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <span class="card-title">Bloco A &mdash; Pagamentos Antecipados: R$ 157.853,56</span>
+    </div>
+    <p style="font-size:13.5px;margin-bottom:12px;">Sinal de 20% + compra à vista para equipamentos instrumentais (Cotações Q-299852 e Q-309078).</p>
+    <table>
+      <thead><tr><th>Valor</th><th>Data</th><th>Extrato Comprobatório</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td><strong>R$ 57.853,56</strong></td><td>04/01/2024</td><td>01.2024 - CASA DE PORTUGAL.pdf</td><td>PAGTO ELETRON COBRANCA &mdash; &ldquo;B BRAUN SINAL 20% ANTECIPADO&rdquo;</td></tr>
+        <tr><td><strong>R$ 100.000,00</strong></td><td>05/03/2024</td><td>03.2024 - CASA DE PORTUGAL.pdf</td><td>PAGTO ELETRON COBRANCA &mdash; &ldquo;COMPRA A VISTA&rdquo;</td></tr>
+      </tbody>
+    </table>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+      <span class="badge badge-green">R$ 82.454,07 &mdash; baixas de acordo</span>
+      <span class="badge badge-green">R$ 51.254,84 &mdash; pago via boleto (comprovado)</span>
+      <span class="badge badge-yellow">R$ 24.163,60 &mdash; pendente baixa interna</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="card">
+      <div class="card-head">
+        <div class="icon blue"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <span class="card-title">Bloco B &mdash; Deposito 13/12/2024</span>
+      </div>
+      <p style="font-size:13.5px;">Depósito de <strong>R$ 124.889,22</strong> via PIX, comprovado em 2 extratos:</p>
+      <p style="font-size:12.5px;color:var(--text-secondary);margin-top:8px;">12.2024 - CASA DE PORTUGAL.pdf (R$ 114.986,41)</p>
+      <p style="font-size:12.5px;color:var(--text-secondary);">12.2024 - SAO BERNARDO.pdf (R$ 9.902,81)</p>
+      <div style="margin-top:12px;"><span class="badge badge-red">Crédito Rede Casa: R$ 107.117,24</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="icon green"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <span class="card-title">Bloco C &mdash; Boletos R$ 51.254,84</span>
+      </div>
+      <p style="font-size:13.5px;">Parcelas 1 e 2 pagas via boleto bancário pelas unidades hospitalares.</p>
+      <p style="font-size:12.5px;color:var(--text-secondary);margin-top:8px;">16 notas fiscais localizadas nos extratos de Jun-Jul/2024</p>
+      <p style="font-size:12.5px;color:var(--text-secondary);">Unidades: Laranjeiras, Evangélico, São Bernardo</p>
+      <div style="margin-top:12px;"><span class="badge badge-green">100% comprovado nos extratos</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 3: EVIDENCIA CRITICA ====== -->
+<div class="slide" id="slide3">
+  <div class="slide-header">
+    <h1><span class="slide-num">3</span> Evidência Crítica &mdash; NFs 946xxx Pagas em Duplicidade</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="hbox red">
+    <h3>Descoberta nos Extratos de Fev-Mar/2025</h3>
+    <p>A BBraun compensou NFs da série 946xxx contra o depósito de R$ 124.889,22 (Bloco B). Porém, <strong>essas mesmas NFs já haviam sido pagas separadamente por boleto bancário</strong> pelas unidades hospitalares em fevereiro e março de 2025. Isso configura <strong>dupla compensação</strong>.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>NF</th><th>Valor (R$)</th><th>Unidade</th><th>Extrato Comprobatório</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td><strong>946674</strong></td><td>14.908,35</td><td>Laranjeiras</td><td>02.2025 - RIO LARANJEIRAS.pdf</td><td>LAB B BRAUN NF.946674 &mdash; PAGTO ELETRON 24873</td></tr>
+      <tr><td><strong>946658</strong></td><td>8.645,25</td><td>Laranjeiras</td><td>02.2025 - RIO LARANJEIRAS.pdf</td><td>LAB B BRAUN NF.946658 &mdash; PAGTO ELETRON 24874</td></tr>
+      <tr><td><strong>946661</strong></td><td>23.647,29</td><td>São Bernardo</td><td>02.2025 - SAO BERNARDO.pdf</td><td>BBRAUN - NF 946661 &mdash; PAGTO ELETRON 43892</td></tr>
+      <tr><td><strong>946644/1</strong></td><td>27.377,06</td><td>São Bernardo</td><td>02.2025 - SAO BERNARDO.pdf</td><td>BBRAUN - 946644/1 &mdash; PAGTO ELETRON 43944</td></tr>
+      <tr><td><strong>946733</strong></td><td>2.788,92</td><td>São Bernardo</td><td>02.2025 - SAO BERNARDO.pdf</td><td>BBRAUN - 946733 &mdash; PAGTO ELETRON 43943</td></tr>
+      <tr><td><strong>946732</strong></td><td>2.439,91</td><td>Santa Cruz</td><td>02.2025 - SANTA CRUZ.pdf</td><td>B BRAUN NF 946732 &mdash; PAGTO ELETRON 3105</td></tr>
+      <tr><td><strong>946729</strong></td><td>216,44</td><td>Laranjeiras</td><td>02.2025 - RIO LARANJEIRAS.pdf</td><td>LAB B BRAUN NF. 946729 &mdash; PAGTO ELETRON 24859</td></tr>
+      <tr><td><strong>946754</strong></td><td>1.351,36</td><td>Laranjeiras</td><td>02.2025 - RIO LARANJEIRAS.pdf</td><td>B BRAUN NF.94675401 &mdash; PAGTO ELETRON 24986</td></tr>
+      <tr><td><strong>946666</strong></td><td>5.816,61</td><td>Casa de Portugal</td><td>02.2025 - CASA DE PORTUGAL.pdf</td><td>BRAUN NF 946666 &mdash; PAGTO ELETRON 69038</td></tr>
+      <tr><td><strong>946729/2</strong></td><td>&mdash;</td><td>Laranjeiras</td><td>03.2025 - RIO LARANJEIRAS.pdf</td><td>LAB B BRAUN NF. 946729002 (parcela 2)</td></tr>
+    </tbody>
+  </table>
+
+  <div style="display:flex;gap:16px;margin-top:14px;">
+    <div class="metric red" style="flex:1">
+      <div class="metric-val">R$ 87.191,19</div>
+      <div class="metric-lbl">Total comprovado de NFs 946xxx pagas por boleto</div>
+    </div>
+    <div class="metric orange" style="flex:1">
+      <div class="metric-val">Dupla Compensação</div>
+      <div class="metric-lbl">BBraun baixou via depósito + unidades pagaram via boleto</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 4: CRONOLOGIA ====== -->
+<div class="slide" id="slide4">
+  <div class="slide-header">
+    <h1><span class="slide-num">4</span> Cronologia das Tratativas</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-date">21/08/2025</div>
+      <div class="tl-who">Suelem Oliveira (BBraun)</div>
+      <div class="tl-txt">Envia levantamento de notas e créditos. Afirma que o Grupo Casa não possui nenhum crédito. Detalha baixa de créditos em 17/10/2024.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">21/08/2025</div>
+      <div class="tl-who">Luana (Coord. Financeiro &mdash; Rede Casa)</div>
+      <div class="tl-txt">Contesta: crédito junto a BBraun é de R$ 133.750,11. Detalha: R$ 82.454,07 de acordo, R$ 24.163,60 de NFs não recebidas, R$ 51.254,84 pagas com boleto.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">25/08/2025</div>
+      <div class="tl-who">Suelem (BBraun)</div>
+      <div class="tl-txt">Responde em 3 pontos: (1) NFs 874270/874343/874344 &mdash; envia 2ª via; (2) R$ 51.254,84 &mdash; pede comprovantes; (3) Depósito 13/12 &mdash; detalha compensação de 8 NFs série 946xxx.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">08/09/2025</div>
+      <div class="tl-who">Luana (Rede Casa)</div>
+      <div class="tl-txt">Análise detalhada: lista 15 NFs pagas por boleto. Reconhece NFs 946650 e 946755 não recebidas (R$ 17.771,98). Calcula crédito remanescente R$ 107.117,24.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">12/09/2025</div>
+      <div class="tl-who">Luana (Rede Casa)</div>
+      <div class="tl-txt">Reenvia todos os 12 comprovantes de pagamento por boleto (R$ 51.254,84). Suelem confirma recebimento mas <strong>não dá posição sobre o aceite</strong>.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">23/03/2026</div>
+      <div class="tl-who">Luana &rarr; Joel Alves</div>
+      <div class="tl-txt">Encaminha todo o histórico para análise e posição final da assessoria da CEO.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 5: BLOCO A ====== -->
+<div class="slide" id="slide5">
+  <div class="slide-header">
+    <h1><span class="slide-num">5</span> Bloco A &mdash; Pagamentos Antecipados (R$ 157.853,56)</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="icon green"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <span class="card-title">Itens resolvidos</span>
+    </div>
+    <table>
+      <thead><tr><th>Item</th><th>Valor</th><th>Posição BBraun</th><th>Posição Rede Casa</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Baixas de NFs</td><td>R$ 82.454,07</td><td>De acordo</td><td>De acordo</td><td><span class="badge badge-green">Resolvido</span></td></tr>
+        <tr><td>Parcelas pagas por boleto</td><td>R$ 51.254,84</td><td>Pediu comprovantes</td><td>Comprovantes enviados + extratos 2024</td><td><span class="badge badge-green">Comprovado</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="icon orange"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <span class="card-title">Item pendente</span>
+    </div>
+    <table>
+      <thead><tr><th>NF</th><th>Valor</th><th>Situação</th><th>Ação necessária</th></tr></thead>
+      <tbody>
+        <tr><td>874270-R6</td><td>R$ 13.086,80</td><td>2ª via enviada pela BBraun</td><td>Verificar recebimento interno</td></tr>
+        <tr><td>874343-R6</td><td>R$ 9.561,60</td><td>2ª via enviada pela BBraun</td><td>Verificar recebimento interno</td></tr>
+        <tr><td>874344-R6</td><td>R$ 1.515,20</td><td>2ª via enviada pela BBraun</td><td>Verificar recebimento interno</td></tr>
+      </tbody>
+    </table>
+    <div class="hbox orange" style="margin-top:14px;">
+      <h3>Saldo do Bloco A</h3>
+      <p>R$ 133.708,91 já comprovados e aceitos. Restam R$ 24.163,60 pendentes de verificação interna pela Rede Casa (NFs cuja 2ª via foi enviada pela BBraun em 25/08/2025).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 6: BLOCO B ====== -->
+<div class="slide" id="slide6">
+  <div class="slide-header">
+    <h1><span class="slide-num">6</span> Bloco B &mdash; Depósito 13/12/2024 (R$ 124.889,22)</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="icon blue"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+      <span class="card-title">NFs compensadas pela BBraun contra o depósito</span>
+    </div>
+    <table>
+      <thead><tr><th>NF</th><th>Unidade</th><th>Valor</th><th>Status BBraun</th><th>Extrato Boleto (2025)</th></tr></thead>
+      <tbody>
+        <tr><td>946399</td><td>Menssana</td><td>R$ 372,80</td><td>Compensado</td><td>&mdash;</td></tr>
+        <tr><td>946397</td><td>Obra Portuguesa</td><td>R$ 10.001,00</td><td>Compensado</td><td>&mdash;</td></tr>
+        <tr><td>946400</td><td>Evangélico</td><td>R$ 22.808,00</td><td>Compensado</td><td>&mdash;</td></tr>
+        <tr><td>946403</td><td>Laranjeiras</td><td>R$ 11.664,00</td><td>Compensado</td><td>&mdash;</td></tr>
+        <tr style="background:var(--yellow-bg)"><td>946398</td><td>Ilha do Governador</td><td>R$ 42.735,20</td><td>Compensado</td><td>Extrato não detalha fornecedor</td></tr>
+        <tr><td>946404</td><td>Câncer</td><td>R$ 1.846,80</td><td>Compensado</td><td>&mdash;</td></tr>
+        <tr><td>946401</td><td>São Bernardo</td><td>R$ 32.252,40</td><td>Compensado</td><td>&mdash;</td></tr>
+        <tr><td>946402</td><td>Prontocor</td><td>R$ 940,00</td><td>Compensado</td><td>&mdash;</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:var(--text-secondary);margin-top:8px;">Total compensado pela BBraun: R$ 122.620,20 | NFs 946650 (R$ 16.463,98) e 946755 (R$ 1.308,00) não recebidas.</p>
+  </div>
+
+  <div class="cols">
+    <div class="hbox red">
+      <h3>Posição BBraun</h3>
+      <p>Crédito remanescente: <strong>R$ 82.514,02</strong><br>(R$ 124.889,22 menos R$ 122.620,20 + ajustes)</p>
+    </div>
+    <div class="hbox green">
+      <h3>Posição Rede Casa</h3>
+      <p>Crédito remanescente: <strong>R$ 107.117,24</strong><br>Abatendo apenas NFs 946650 e 946755 (R$ 17.771,98) não recebidas.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 7: PAGAMENTOS CONTINUOS ====== -->
+<div class="slide" id="slide7">
+  <div class="slide-header">
+    <h1><span class="slide-num">7</span> Pagamentos Contínuos BBraun (2025-2026)</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="hbox green">
+    <h3>Comprovação de relação comercial ativa e adimplente</h3>
+    <p>A análise de 128 extratos bancários (2025 e 2026) comprova que a Rede Casa manteve pagamentos <strong>regulares e contínuos</strong> a BBraun em todas as unidades hospitalares, todos os meses.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="icon blue"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <span class="card-title">Volume de pagamentos por período</span>
+    </div>
+    <table>
+      <thead><tr><th>Período</th><th>Série NFs</th><th>Unidades</th><th>Destaques</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Jan/2025</strong></td><td>917xxx-952xxx</td><td>Todas (10 unidades)</td><td>Pagamentos de NFs 2024 em atraso</td></tr>
+        <tr><td><strong>Fev-Mar/2025</strong></td><td>946xxx</td><td>LAR, SB, SC, CP</td><td style="color:var(--red);font-weight:700">NFs 946xxx pagas por boleto (Slide 3)</td></tr>
+        <tr><td><strong>Abr/2025</strong></td><td>974xxx-975xxx</td><td>Todas + Arrendatária</td><td>PIX R$ 67.000 + R$ 188.200 (HOLDING)</td></tr>
+        <tr><td><strong>Mai-Jun/2025</strong></td><td>980xxx-993xxx</td><td>Todas</td><td>HOLDING e MEDICINA DIAG centralizando</td></tr>
+        <tr><td><strong>Jul/2025</strong></td><td>995xxx-1003xxx</td><td>Todas + Arrendatária</td><td>PIX R$ 246.600 (HOLDING). 18 NFs Evangélico</td></tr>
+        <tr><td><strong>Ago-Set/2025</strong></td><td>1003xxx-1017xxx</td><td>Todas</td><td>PIX R$ 18.400 + R$ 70.668 + R$ 58.590</td></tr>
+        <tr><td><strong>Out-Dez/2025</strong></td><td>1018xxx-1036xxx</td><td>Todas</td><td>MEDICINA DIAG: 20+ NFs/mês centralizadas</td></tr>
+        <tr><td><strong>Jan-Fev/2026</strong></td><td>1030xxx-1041xxx</td><td>SB, SC, MED DIAG</td><td>PIX R$ 55.000. Continuidade dos pagamentos</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="icon orange"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <span class="card-title">Hospital Ilha do Governador &mdash; Limitação nos extratos</span>
+    </div>
+    <p style="font-size:13.5px;">Os 16 PDFs de extratos da Ilha do Governador (Jul/2025 a Fev/2026) listam pagamentos genéricos como <strong>&ldquo;SISPAG FORNECEDORES&rdquo;</strong> sem identificar o fornecedor. Não é possível confirmar pagamentos específicos a BBraun por este meio.</p>
+    <p style="font-size:12.5px;color:var(--text-secondary);margin-top:6px;">Banco: Itaú &mdash; Ag. 0370 | CNPJs: 22.233.557/0001-05 e 00.546.162/0001-20</p>
+  </div>
+</div>
+
+<!-- ====== SLIDE 8: CONSOLIDACAO ====== -->
+<div class="slide" id="slide8">
+  <div class="slide-header">
+    <h1><span class="slide-num">8</span> Consolidação Financeira</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="icon blue"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <span class="card-title">Demonstrativo de créditos e comprovações</span>
+    </div>
+    <table>
+      <thead><tr><th>Descrição</th><th>Valor (R$)</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Pagamentos antecipados (Bloco A)</td><td><strong>157.853,56</strong></td><td><span class="badge badge-green">Comprovado</span></td></tr>
+        <tr><td>&emsp;(&#8722;) Baixas de acordo</td><td>82.454,07</td><td><span class="badge badge-green">Resolvido</span></td></tr>
+        <tr><td>&emsp;(&#8722;) NFs pagas por boleto (extratos 2024)</td><td>51.254,84</td><td><span class="badge badge-green">Comprovado</span></td></tr>
+        <tr><td>&emsp;(&#8722;) NFs 874270/874343/874344</td><td>24.163,60</td><td><span class="badge badge-yellow">Pendente</span></td></tr>
+        <tr style="background:rgba(27,43,91,0.04)"><td><strong>= Saldo Bloco A</strong></td><td><strong>0 a 24.163,60</strong></td><td><span class="badge badge-yellow">Depende da baixa</span></td></tr>
+        <tr><td colspan="3" style="height:6px;background:var(--bg);border:none;"></td></tr>
+        <tr><td>Depósito 13/12/2024 (Bloco B)</td><td><strong>124.889,22</strong></td><td><span class="badge badge-green">Comprovado</span></td></tr>
+        <tr><td>&emsp;(&#8722;) NFs não recebidas (946650+946755)</td><td>17.771,98</td><td><span class="badge badge-blue">Abatido</span></td></tr>
+        <tr style="background:var(--green-bg)"><td><strong>= Saldo Bloco B (posição Rede Casa)</strong></td><td><strong>107.117,24</strong></td><td><span class="badge badge-green">A favor da Rede Casa</span></td></tr>
+        <tr><td colspan="3" style="height:6px;background:var(--bg);border:none;"></td></tr>
+        <tr style="background:var(--red-bg)"><td><strong>NFs 946xxx pagas por boleto (extratos 2025)</strong></td><td><strong>87.191,19</strong></td><td><span class="badge badge-red">Dupla compensação</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="metrics" style="margin-top:16px;">
+    <div class="metric green" style="grid-column: span 2;">
+      <div class="metric-val">R$ 107.117,24 a R$ 131.280,84</div>
+      <div class="metric-lbl">Crédito total estimado a favor da Rede Casa Hospitais</div>
+    </div>
+    <div class="metric red">
+      <div class="metric-val">R$ 87.191,19</div>
+      <div class="metric-lbl">Pagamentos em duplicidade comprovados</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 9: ACOES ====== -->
+<div class="slide" id="slide9">
+  <div class="slide-header">
+    <h1><span class="slide-num">9</span> Ações Recomendadas</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="cols">
+    <div>
+      <h2 style="font-size:16px;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        <span style="background:var(--primary);color:white;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:0.5px;">INTERNAS</span> Acoes da Rede Casa
+      </h2>
+      <div class="act">
+        <div class="act-num int">1</div>
+        <div class="act-txt"><strong>NFs 874270, 874343, 874344</strong> (R$ 24.163,60) &mdash; Verificar junto ao financeiro das unidades se a 2ª via enviada pela BBraun em 25/08/2025 foi recebida e dar baixa.</div>
+      </div>
+      <div class="act">
+        <div class="act-num int">2</div>
+        <div class="act-txt"><strong>NF 946398</strong> (R$ 42.735,20) &mdash; Verificar junto ao Hospital Ilha do Governador. Extratos bancários não detalham fornecedor. Solicitar detalhamento ao Itaú (Ag. 0370).</div>
+      </div>
+      <div class="act">
+        <div class="act-num int">3</div>
+        <div class="act-txt"><strong>NFs 946650 e 946755</strong> (R$ 17.771,98) &mdash; Confirmar que não foram recebidas no financeiro (já abatidas do crédito pela Luana).</div>
+      </div>
+    </div>
+
+    <div>
+      <h2 style="font-size:16px;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        <span style="background:var(--accent);color:white;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:0.5px;">EXTERNAS</span> Acoes junto a BBraun
+      </h2>
+      <div class="act">
+        <div class="act-num ext">1</div>
+        <div class="act-txt"><strong>Crédito R$ 107.117,24</strong> &mdash; Formalizar que o crédito referente ao depósito de 13/12/2024 é de R$ 107.117,24 (posição Rede Casa), e não R$ 82.514,02 (posição BBraun).</div>
+      </div>
+      <div class="act">
+        <div class="act-num ext">2</div>
+        <div class="act-txt"><strong>Dupla compensação</strong> &mdash; Apresentar extratos Fev-Mar/2025 comprovando que NFs 946xxx foram pagas por boleto E compensadas contra o depósito. Solicitar estorno/correção.</div>
+      </div>
+      <div class="act">
+        <div class="act-num ext">3</div>
+        <div class="act-txt"><strong>Boletos R$ 51.254,84</strong> &mdash; Solicitar posição formal e definitiva sobre o aceite dos comprovantes enviados em 12/09/2025.</div>
+      </div>
+      <div class="act">
+        <div class="act-num ext">4</div>
+        <div class="act-txt"><strong>Reconciliação final</strong> &mdash; Solicitar posição global sobre o Bloco A (R$ 157.853,56), considerando R$ 133.708,91 já comprovados.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 10: EXTRATOS ====== -->
+<div class="slide" id="slide10">
+  <div class="slide-header">
+    <h1><span class="slide-num">10</span> Base Documental &mdash; Extratos Consultados</h1>
+    <img class="header-logo" src="https://static.wixstatic.com/media/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png/v1/fit/w_2500,h_1330,al_c/70be2f_85f411ed98c74a479aab8c66ec913b71~mv2.png" alt="Rede Casa">
+  </div>
+
+  <div class="metrics">
+    <div class="metric blue"><div class="metric-val">118</div><div class="metric-lbl">Extratos 2023</div></div>
+    <div class="metric blue"><div class="metric-val">118</div><div class="metric-lbl">Extratos 2024</div></div>
+    <div class="metric orange"><div class="metric-val">113</div><div class="metric-lbl">Extratos 2025</div></div>
+    <div class="metric orange"><div class="metric-val">15</div><div class="metric-lbl">Extratos 2026</div></div>
+  </div>
+
+  <div class="cols">
+    <div class="card">
+      <div class="card-head">
+        <div class="icon green"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <span class="card-title">Extratos com evidências diretas</span>
+      </div>
+      <table style="font-size:12.5px;">
+        <thead><tr><th>Extrato</th><th>Evidência</th></tr></thead>
+        <tbody>
+          <tr><td>01.2024 - CASA DE PORTUGAL</td><td>Sinal R$ 57.853,56</td></tr>
+          <tr><td>03.2024 - CASA DE PORTUGAL</td><td>Compra à vista R$ 100.000</td></tr>
+          <tr><td>06-07.2024 (LAR, EVANG, SB)</td><td>Boletos NFs 883xxx</td></tr>
+          <tr><td>12.2024 - CASA DE PORTUGAL</td><td>PIX R$ 114.986,41</td></tr>
+          <tr><td>12.2024 - SAO BERNARDO</td><td>PIX R$ 9.902,81</td></tr>
+          <tr><td>02.2025 - RIO LARANJEIRAS</td><td>NFs 946674, 946658, 946729, 946754</td></tr>
+          <tr><td>02.2025 - SAO BERNARDO</td><td>NFs 946661, 946733, 946644</td></tr>
+          <tr><td>02.2025 - SANTA CRUZ</td><td>NF 946732</td></tr>
+          <tr><td>02.2025 - CASA DE PORTUGAL</td><td>NF 946666</td></tr>
+          <tr><td>03.2025 - RIO LARANJEIRAS</td><td>NF 946729/2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="icon orange"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <span class="card-title">Limitações identificadas</span>
+      </div>
+      <div class="hbox orange" style="margin:0 0 14px 0">
+        <h3>Hospital Ilha do Governador</h3>
+        <p>16 PDFs analisados (Jul/2025-Fev/2026). Extratos do Itaú listam apenas &ldquo;SISPAG FORNECEDORES&rdquo; sem nome do beneficiário.</p>
+        <p style="margin-top:6px;"><strong>Recomendação:</strong> Solicitar ao banco o detalhamento dos pagamentos SISPAG ou verificar via sistema interno de contas a pagar.</p>
+      </div>
+      <div>
+        <p style="font-size:13.5px;font-weight:700;color:var(--primary);margin-bottom:4px;">Unidades hospitalares nos extratos:</p>
+        <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.8;">Câncer, Casa de Portugal, Egas Moniz, Evangélico, Holding, Italiano, Laranjeiras, Prontocor, Santa Cruz, São Bernardo, Arrendatária, Medicina Diagnóstica, Ilha do Governador</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== NAVIGATION ====== -->
+<div class="slide-nav">
+  <button class="nav-arrow" onclick="go(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+  <div class="nav-sep"></div>
+  <button class="active" onclick="to(0)">&#9679;</button>
+  <button onclick="to(1)">1</button>
+  <button onclick="to(2)">2</button>
+  <button onclick="to(3)">3</button>
+  <button onclick="to(4)">4</button>
+  <button onclick="to(5)">5</button>
+  <button onclick="to(6)">6</button>
+  <button onclick="to(7)">7</button>
+  <button onclick="to(8)">8</button>
+  <button onclick="to(9)">9</button>
+  <button onclick="to(10)">10</button>
+  <div class="nav-sep"></div>
+  <button class="nav-arrow" onclick="go(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+</div>
+
+<script>
+  let cur = 0;
+  const total = 11;
+
+  function to(n) {
+    document.querySelectorAll('.slide, .slide-cover').forEach(s => s.classList.remove('active'));
+    const t = document.getElementById('slide' + n);
+    if (t) { t.classList.add('active'); cur = n; nav(); window.scrollTo({top:0,behavior:'smooth'}); }
+  }
+
+  function go(d) {
+    let n = cur + d;
+    if (n < 0) n = total - 1;
+    if (n >= total) n = 0;
+    to(n);
+  }
+
+  function nav() {
+    document.querySelectorAll('.slide-nav button:not(.nav-arrow)').forEach((b, i) => {
+      b.classList.toggle('active', i === cur);
+    });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') { e.preventDefault(); to(0); }
+    if (e.key === 'End') { e.preventDefault(); to(total - 1); }
+  });
+
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.changedTouches[0].screenX; });
+  document.addEventListener('touchend', e => {
+    const d = e.changedTouches[0].screenX - tx;
+    if (Math.abs(d) > 60) go(d < 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>
